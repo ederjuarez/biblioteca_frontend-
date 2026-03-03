@@ -6,9 +6,11 @@ import {
   StyleSheet,
   StatusBar,
   TouchableOpacity,
+  Button,
 } from "react-native";
 import api from "@/api/axios";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { Link } from "expo-router";
 
 interface Book {
   id: number;
@@ -48,6 +50,9 @@ export default function Books() {
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => <Item title={item.title} />}
         />
+        <Link href="/add_book">
+          <Text style={{ color: "blue", marginTop: 20 }}>Agregar Libro</Text>
+        </Link>
       </SafeAreaView>
     </SafeAreaProvider>
   );

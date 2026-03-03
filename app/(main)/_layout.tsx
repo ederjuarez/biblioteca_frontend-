@@ -1,61 +1,13 @@
-import { Tabs } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { Stack } from "expo-router";
 
-export default function AdministrationLayout() {
+export default function MainLayout() {
   return (
-    <Tabs
-      screenOptions={{
-        tabBarActiveTintColor: "green",
-      }}
-    >
-      <Tabs.Screen
-        name="profile"
-        options={{
-          header: () => null,
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons name="person" size={size} color={color} />
-          ),
-        }}
+    <Stack>
+      <Stack.Screen name="(tabs)" options={{ headerShown: false, title: "Home" }} />
+      <Stack.Screen
+        name="add_book"
+        options={{ title: "Agregar Libro" }}
       />
-      <Tabs.Screen
-        name="users"
-        options={{
-          header: () => null,
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons name="people" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="index"
-        options={{
-          title: "Home",
-          header: () => null,
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons name="home" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="books"
-        options={{
-          title: "Books",
-          header: () => null,
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons name="book" size={size} color={color} />
-          ),
-        }}
-      />
-      <Tabs.Screen
-        name="authors"
-        options={{
-          title: "Authors",
-          header: () => null,
-          tabBarIcon: ({ focused, color, size }) => (
-            <Ionicons name="people" size={size} color={color} />
-          ),
-        }}
-      />
-    </Tabs>
+    </Stack>
   );
 }

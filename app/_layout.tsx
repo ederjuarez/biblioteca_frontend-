@@ -35,7 +35,7 @@ export default function RootLayout() {
       router.replace("/login");
     } else if (token && inAuthGroup) {
       // Si hay sesión y está en el login, a la raíz (index.tsx)
-      router.replace("/(main)");
+      router.replace("/(main)/(tabs)");
     }
   }, [token, navigationState?.key, segments, isLoading, router]);
 
