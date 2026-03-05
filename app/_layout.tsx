@@ -7,6 +7,7 @@ import {
 import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
+import { PaperProvider } from 'react-native-paper';
 
 export default function RootLayout() {
   const token = useAuthStore((state) => state.token);
@@ -50,5 +51,7 @@ export default function RootLayout() {
     );
   }
 
-  return <Slot />;
+  return <PaperProvider>
+    <Slot />
+  </PaperProvider>;
 }
