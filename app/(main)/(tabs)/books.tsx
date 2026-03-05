@@ -6,10 +6,9 @@ import {
   StyleSheet,
   StatusBar,
   TouchableOpacity,
-  Button,
 } from "react-native";
 import api from "@/api/axios";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
 import { Link } from "expo-router";
 
 interface Book {
@@ -42,19 +41,17 @@ export default function Books() {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
-        <Text>Lista de autores</Text>
-        <FlatList
-          data={books}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <Item title={item.title} />}
-        />
-        <Link href="/add_book">
-          <Text style={{ color: "blue", marginTop: 20 }}>Agregar Libro</Text>
-        </Link>
-      </SafeAreaView>
-    </SafeAreaProvider>
+    <SafeAreaView style={styles.container}>
+      <Text>Lista de autores</Text>
+      <FlatList
+        data={books}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => <Item title={item.title} />}
+      />
+      <Link href="/add_book">
+        <Text style={{ color: "blue", marginTop: 20 }}>Agregar Libro</Text>
+      </Link>
+    </SafeAreaView>
   );
 }
 

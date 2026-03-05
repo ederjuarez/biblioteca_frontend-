@@ -1,15 +1,19 @@
 import React, { useState } from "react";
-import { View, Text, TextInput, Button, StyleSheet, Alert } from "react-native";
+import { StyleSheet, Alert } from "react-native";
 import { useRouter } from "expo-router";
 import api from "@/api/axios";
 import { useAuthStore } from "@/store/useAuthStore";
 import { LoginResponse } from "@/types/auth";
+import { TextInput, Button as BtnPaper, useTheme } from "react-native-paper";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const login = useAuthStore((state) => state.login);
   const router = useRouter();
+  const theme = useTheme();
 
   const handleLogin = async () => {
     // Aquí puedes agregar la lógica de autenticación, por ejemplo, hacer una solicitud a tu backend
@@ -21,7 +25,7 @@ export default function Login() {
       console.log("Autenticación exitosa =>", data);
       const { access, refresh, user } = data;
       await login(access, refresh, user || { id: 1, username }, true);
-      router.replace("/(main)/profile"); // Redirige a la página principal después del login
+      router.replace("/(main)/(tabs)/profile"); // Redirige a la página principal después del login
     } catch (error) {
       console.log(error);
       Alert.alert(
@@ -32,23 +36,26 @@ export default function Login() {
   };
 
   return (
-    <View style={styles.container}>
-      <Text>Login</Text>
+    <SafeAreaView style={styles.container}>
       <TextInput
-        style={styles.input}
-        placeholder="Username"
+        mode="outlined"
+        label="Nombre de usuario"
+        placeholder="Nombre de usuario"
         value={username}
         onChangeText={setUsername}
       />
       <TextInput
-        style={styles.input}
-        placeholder="Password"
+        mode="outlined"
+        label="Contraseña"
+        placeholder="Contraseña"
         secureTextEntry={true}
         value={password}
         onChangeText={setPassword}
       />
-      <Button title="Login" onPress={() => handleLogin()} />
-    </View>
+      <BtnPaper mode="contained" onPress={() => handleLogin()} contentStyle={{backgroundColor: theme.colors.secondary}} labelStyle={{color: theme.text.textColor}}>
+        Iniciar Sesión
+      </BtnPaper>
+    </SafeAreaView>
   );
 }
 
@@ -57,16 +64,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: "center",
     padding: 20,
-  },
-  input: {
-    borderBottomWidth: 1,
-    marginBottom: 15,
-    padding: 8,
-  },
-  button: {
-    backgroundColor: "#007BFF",
-    padding: 10,
-    borderRadius: 5,
-    alignItems: "center",
+    gap: 20,
   },
 });

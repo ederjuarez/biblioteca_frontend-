@@ -7,7 +7,23 @@ import {
 import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect } from "react";
 import { View, ActivityIndicator } from "react-native";
-import { PaperProvider } from 'react-native-paper';
+import {
+  PaperProvider,
+  MD3LightTheme as DefaultTheme,
+} from "react-native-paper";
+import { SafeAreaProvider } from "react-native-safe-area-context";
+
+const theme = {
+  ...DefaultTheme,
+  colors: {
+    ...DefaultTheme.colors,
+    primary: "tomato",
+    secondary: "yellow",
+  },
+  text:{
+    textColor: "black",
+  }
+};
 
 export default function RootLayout() {
   const token = useAuthStore((state) => state.token);
@@ -51,7 +67,11 @@ export default function RootLayout() {
     );
   }
 
-  return <PaperProvider>
-    <Slot />
-  </PaperProvider>;
+  return (
+    <SafeAreaProvider>
+      <PaperProvider theme={theme}>
+        <Slot />
+      </PaperProvider>
+    </SafeAreaProvider>
+  );
 }
