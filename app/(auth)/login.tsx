@@ -11,6 +11,7 @@ import { useAppTheme } from "@/types/theme";
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const login = useAuthStore((state) => state.login);
   const router = useRouter();
   const theme = useAppTheme();
@@ -18,6 +19,7 @@ export default function Login() {
   const handleLogin = async () => {
     // Aquí puedes agregar la lógica de autenticación, por ejemplo, hacer una solicitud a tu backend
     try {
+      setLoading(true);
       const { data } = await api.post<LoginResponse>("/token/", {
         username,
         password,
@@ -25,13 +27,15 @@ export default function Login() {
       console.log("Autenticación exitosa =>", data);
       const { access, refresh, user } = data;
       await login(access, refresh, user || { id: 1, username }, true);
-      router.replace("/(main)/(tabs)/profile"); // Redirige a la página principal después del login
+      // router.replace("/(main)/(tabs)/profile"); // Redirige a la página principal después del login
     } catch (error) {
       console.log(error);
       Alert.alert(
         "Error",
         "Credenciales incorrectas. Por favor, inténtalo de nuevo.",
       );
+    } finally {
+      setLoading(false);
     }
   };
 
