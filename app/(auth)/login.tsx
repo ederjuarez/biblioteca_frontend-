@@ -4,16 +4,16 @@ import { useRouter } from "expo-router";
 import api from "@/api/axios";
 import { useAuthStore } from "@/store/useAuthStore";
 import { LoginResponse } from "@/types/auth";
-import { TextInput, Button as BtnPaper, useTheme } from "react-native-paper";
+import { TextInput, Button as BtnPaper } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
-
+import { useAppTheme } from "@/types/theme";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const login = useAuthStore((state) => state.login);
   const router = useRouter();
-  const theme = useTheme();
+  const theme = useAppTheme();
 
   const handleLogin = async () => {
     // Aquí puedes agregar la lógica de autenticación, por ejemplo, hacer una solicitud a tu backend
@@ -52,7 +52,7 @@ export default function Login() {
         value={password}
         onChangeText={setPassword}
       />
-      <BtnPaper mode="contained" onPress={() => handleLogin()} contentStyle={{backgroundColor: theme.colors.secondary}} labelStyle={{color: theme.text.textColor}}>
+      <BtnPaper mode="contained" onPress={() => handleLogin()} contentStyle={{ backgroundColor: theme.colors.secondary }} labelStyle={{ color: theme.colors.textColor }}>
         Iniciar Sesión
       </BtnPaper>
     </SafeAreaView>
