@@ -3,7 +3,7 @@ import * as SecureStore from "expo-secure-store";
 import { useAuthStore } from "@/store/useAuthStore";
 
 const api = axios.create({
-  baseURL: "http://localhost:8000/api",
+  baseURL: "http://172.16.8.24:8000/api",
 });
 
 api.interceptors.request.use(
@@ -32,7 +32,7 @@ api.interceptors.response.use(
         }
 
         const response = await axios.post(
-          "http://localhost:8000/api/token/refresh/",
+          "http://172.16.8.24:8000/api/token/refresh/",
           { refresh: refreshToken },
         );
         const { access } = response.data;

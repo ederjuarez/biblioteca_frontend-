@@ -1,30 +1,16 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  StatusBar,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, StatusBar, TouchableOpacity } from "react-native";
+import { List, Text, MD3Colors } from "react-native-paper";
 import api from "@/api/axios";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
+
+const ListItem = List.Item;
 
 interface Author {
   id: number;
   name: string;
+  birth_date: string;
 }
-
-type ItemProps = { name: string };
-
-const Item = ({ name }: ItemProps) => (
-  <View style={styles.item}>
-    <Text style={styles.title}>{name}</Text>
-    <TouchableOpacity style={{ marginLeft: "auto" }}>
-      <Text style={{ color: "white" }}>Ver Libros</Text>
-    </TouchableOpacity>
-  </View>
-);
 
 export default function Authors() {
   const [authors, setAuthors] = useState<Author[]>([]);
@@ -32,7 +18,7 @@ export default function Authors() {
   useEffect(() => {
     try {
       api.get("/authors/").then((response) => {
-        setAuthors(response.data);
+        setAuthors(response.data.results);
       });
     } catch (error) {
       console.log("Error fetching authors =>", error);
@@ -40,16 +26,25 @@ export default function Authors() {
   }, []);
 
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
-        <Text>Lista de autores</Text>
-        <FlatList
-          data={authors}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <Item name={item.name} />}
+    <SafeAreaView style={styles.container}>
+      <Text variant="titleLarge">Lista de autores</Text>
+      {authors.map((author) => (
+        <ListItem
+          key={author.id}
+          title={author.name}
+          description={author.birth_date}
+          right={(props) => (
+            <TouchableOpacity onPress={() => console.log("Ir a libros")}>
+              <List.Icon
+                {...props}
+                color={MD3Colors.primary60}
+                icon="bookshelf"
+              />
+            </TouchableOpacity>
+          )}
         />
-      </SafeAreaView>
-    </SafeAreaProvider>
+      ))}
+    </SafeAreaView>
   );
 }
 
@@ -57,15 +52,8 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: StatusBar.currentHeight || 0,
-  },
-  item: {
-    display: "flex",
-    flexDirection: "row",
-    backgroundColor: "#3eb3f2",
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   title: {
     fontSize: 32,

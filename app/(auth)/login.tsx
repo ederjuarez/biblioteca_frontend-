@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Alert } from "react-native";
+import { StyleSheet, Alert, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import api from "@/api/axios";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -11,11 +11,13 @@ import { useAppTheme } from "@/types/theme";
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const login = useAuthStore((state) => state.login);
+  const { login, isLoading } = useAuthStore((state) => state);
   const router = useRouter();
   const theme = useAppTheme();
+  const [loadind, setLoading] = useState(false);
 
   const handleLogin = async () => {
+    setLoading(true);
     // Aquí puedes agregar la lógica de autenticación, por ejemplo, hacer una solicitud a tu backend
     try {
       const { data } = await api.post<LoginResponse>("/token/", {
@@ -25,8 +27,10 @@ export default function Login() {
       console.log("Autenticación exitosa =>", data);
       const { access, refresh, user } = data;
       await login(access, refresh, user || { id: 1, username }, true);
-      router.replace("/(main)/(tabs)/profile"); // Redirige a la página principal después del login
+      setLoading(false);
+      // router.replace("/(main)/(tabs)/profile"); // Redirige a la página principal después del login
     } catch (error) {
+      setLoading(false);
       console.log(error);
       Alert.alert(
         "Error",
@@ -52,7 +56,13 @@ export default function Login() {
         value={password}
         onChangeText={setPassword}
       />
-      <BtnPaper mode="contained" onPress={() => handleLogin()} contentStyle={{ backgroundColor: theme.colors.secondary }} labelStyle={{ color: theme.colors.textColor }}>
+      <BtnPaper
+        mode="contained"
+        onPress={() => handleLogin()}
+        contentStyle={{ backgroundColor: theme.colors.secondary }}
+        labelStyle={{ color: theme.colors.textColor }}
+        loading={loadind}
+      >
         Iniciar Sesión
       </BtnPaper>
     </SafeAreaView>

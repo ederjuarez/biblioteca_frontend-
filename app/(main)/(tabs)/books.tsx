@@ -1,34 +1,23 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  StatusBar,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, StatusBar, TouchableOpacity } from "react-native";
+import { List, Text, FAB } from "react-native-paper";
 import api from "@/api/axios";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link } from "expo-router";
+import { useRouter } from "expo-router";
+
+const ListItem = List.Item;
 
 interface Book {
   id: number;
   title: string;
+  isbn: string;
+  author_name: string;
+  price: number;
 }
-
-type ItemProps = { title: string };
-
-const Item = ({ title }: ItemProps) => (
-  <View style={styles.item}>
-    <Text style={styles.title}>{title}</Text>
-    <TouchableOpacity style={{ marginLeft: "auto" }}>
-      <Text style={{ color: "white" }}>Ver Libros</Text>
-    </TouchableOpacity>
-  </View>
-);
 
 export default function Books() {
   const [books, setBooks] = useState<Book[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     try {
@@ -42,15 +31,32 @@ export default function Books() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Lista de autores</Text>
-      <FlatList
-        data={books}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <Item title={item.title} />}
+      <Text variant="titleLarge">Lista de libros</Text>
+      {books.map((book) => (
+        <ListItem
+          key={book.id}
+          title={<Text variant="titleSmall">{book.title}</Text>}
+          description={() => (
+            <>
+              <Text>Nombre: {book.author_name}</Text>
+              <Text>ISBN: {book.isbn}</Text>
+              <Text>Price: ${book.price.toFixed(2)}</Text>
+            </>
+          )}
+          right={(props) => (
+            <TouchableOpacity onPress={() => console.log("Ir a libros")}>
+              <List.Icon {...props} icon="book" />
+            </TouchableOpacity>
+          )}
+        />
+      ))}
+      <FAB
+        icon={"plus"}
+        label={"Agregar Libro"}
+        onPress={() => router.push("/(main)/add_book")}
+        visible={true}
+        style={[styles.fabStyle]}
       />
-      <Link href="/add_book">
-        <Text style={{ color: "blue", marginTop: 20 }}>Agregar Libro</Text>
-      </Link>
     </SafeAreaView>
   );
 }
@@ -59,17 +65,15 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     marginTop: StatusBar.currentHeight || 0,
-  },
-  item: {
-    display: "flex",
-    flexDirection: "row",
-    backgroundColor: "#3eb3f2",
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    borderRadius: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
   },
   title: {
     fontSize: 32,
+  },
+  fabStyle: {
+    bottom: 16,
+    right: 16,
+    position: "absolute",
   },
 });
