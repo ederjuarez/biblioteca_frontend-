@@ -16,7 +16,7 @@ export interface Author {
 export default function Authors() {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
-  const [hasMore, setHasMore] = useState("");
+  const [hasMore, setHasMore] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -25,17 +25,26 @@ export default function Authors() {
         params: {
           page: currentPage,
         },
+
       }).then((response) => {
+        response.data.results = response.data.results.filter(
+          (author: Author) => !authors.some((a) => a.id === author.id)
+        );
         setAuthors((prev) => [...prev, ...response.data.results]);
         setHasMore(response.data.links.next);
       });
     } catch (error) {
       console.log("Error fetching authors =>", error);
     }
-  }, []);
+  }, [currentPage]);
 
   const handlePress = (id: number) => {
-    router.push(("/(main)/(tabs)/books/" + id) as any);
+    router.push({
+      pathname: "/(main)/(tabs)/books/" as any,
+      params: {
+        authorId: id,
+      },
+    });
   };
 
   const Item = ({ name, biography, id }: Author) => (
@@ -44,6 +53,7 @@ export default function Authors() {
       description={biography}
       right={props => <TouchableOpacity onPress={() => handlePress(id)}><MaterialCommunityIcons name="bookshelf" {...props} size={40} color={theme.colors.primary} /></TouchableOpacity>}
       style={styles.item}
+      titleStyle={styles.itemTitle}
     />
   );
 
@@ -51,6 +61,7 @@ export default function Authors() {
     <SafeAreaView style={styles.container}>
       <Text variant="titleLarge" style={styles.title}>Lista de autores</Text>
       <FlatList
+        style={styles.list}
         data={authors}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <Item {...item} />}
@@ -78,6 +89,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
   },
+  list: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: "#ccc",
+    borderRadius: 20,
+  },
   title: {
     marginBottom: 16,
     color: "#000",
@@ -85,7 +102,10 @@ const styles = StyleSheet.create({
   },
   item: {
     borderBottomWidth: 1,
-    borderBottomColor: "#ccc"
+    borderBottomColor: "#ccc",
+  },
+  itemTitle: {
+    fontWeight: "bold",
   },
   fab: {
     position: "absolute",
@@ -97,7 +117,7 @@ const styles = StyleSheet.create({
   },
   footerText: {
     textAlign: "center",
-    marginTop: 16,
-    color: "#666",
+    marginTop: 20,
+    marginBottom: 20,
   },
 });
