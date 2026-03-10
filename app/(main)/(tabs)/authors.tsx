@@ -1,8 +1,14 @@
 import React, { useEffect, useState } from "react";
-import { StyleSheet, StatusBar, FlatList } from "react-native";
-import { List, Text } from "react-native-paper";
+import {
+  StyleSheet,
+  StatusBar,
+  FlatList,
+  TouchableOpacity,
+} from "react-native";
+import { List, Text, FAB, MD3Colors } from "react-native-paper";
 import api from "@/api/axios";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useRouter } from "expo-router";
 
 const ListItem = List.Item;
 
@@ -16,7 +22,7 @@ export default function Authors() {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState("");
-  console.log("Current page:", currentPage);
+  const router = useRouter();
 
   useEffect(() => {
     try {
@@ -42,11 +48,29 @@ export default function Authors() {
       <FlatList
         data={authors}
         renderItem={({ item }) => (
-          <ListItem title={item.name} description={item.birth_date} />
+          <ListItem
+            title={item.name}
+            description={item.birth_date}
+            right={(props) => (
+              <TouchableOpacity
+                {...props}
+                onPress={() => console.log("Ir a autor", item.id)}
+              >
+                <List.Icon icon="book-multiple" color={MD3Colors.primary60} />
+              </TouchableOpacity>
+            )}
+          />
         )}
         keyExtractor={(item) => item.id.toString()}
         onEndReached={() => hasMore && setCurrentPage((prev) => prev + 1)}
         onEndReachedThreshold={0.5}
+      />
+      <FAB
+        icon={"plus"}
+        label={"Agregar Autor"}
+        onPress={() => router.push("/(main)/add_author")}
+        visible={true}
+        style={[styles.fabStyle]}
       />
     </SafeAreaView>
   );
@@ -61,5 +85,10 @@ const styles = StyleSheet.create({
   },
   title: {
     fontSize: 32,
+  },
+  fabStyle: {
+    bottom: 16,
+    right: 16,
+    position: "absolute",
   },
 });
