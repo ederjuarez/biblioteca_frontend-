@@ -1,14 +1,13 @@
 import axios from "axios";
-import * as SecureStore from "expo-secure-store";
-import { useAuthStore } from "@/store/useAuthStore";
+import { getStoreKey, setStoreKey, useAuthStore } from "@/store/useAuthStore";
 
 const api = axios.create({
-  baseURL: "http://172.16.8.24:8000/api",
+  baseURL: "http://172.16.10.116:8000/api",
 });
 
 api.interceptors.request.use(
   async (config) => {
-    const token = await SecureStore.getItemAsync("userToken");
+    const token = await getStoreKey("userToken");
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -26,25 +25,22 @@ api.interceptors.response.use(
       console.log("Token expirado, intentando refrescar...");
       originalRequest._retry = true;
       try {
-        const refreshToken = await SecureStore.getItemAsync("refreshToken");
+        const refreshToken = await getStoreKey("refreshToken");
         if (!refreshToken) {
           return Promise.reject(error);
         }
 
         const response = await axios.post(
-          "http://172.16.8.24:8000/api/token/refresh/",
+          "http://172.16.10.116:8000/api/token/refresh/",
           { refresh: refreshToken },
         );
         const { access } = response.data;
-        await SecureStore.setItemAsync("userToken", access);
+        await setStoreKey("userToken", access);
         originalRequest.headers.Authorization = `Bearer ${access}`;
         return api(originalRequest);
       } catch (refreshError) {
         console.log("Error al refrescar token =>", refreshError);
-        const {logout} = useAuthStore.getState(); // Obtenemos la función de logout directamente del store
-
-        // await SecureStore.deleteItemAsync("userToken");
-        // await SecureStore.deleteItemAsync("refreshToken");
+        const { logout } = useAuthStore.getState(); // Obtenemos la función de logout directamente del store
 
         logout(); // Llamamos a logout para limpiar el estado de autenticación
 

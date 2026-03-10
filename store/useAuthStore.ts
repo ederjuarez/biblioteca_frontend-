@@ -1,6 +1,7 @@
 import { create } from "zustand";
 import * as SecureStore from "expo-secure-store";
 import { AuthState } from "@/types/auth";
+import { Platform } from "react-native";
 
 export const useAuthStore = create<AuthState>((set) => ({
   user: null,
@@ -9,21 +10,20 @@ export const useAuthStore = create<AuthState>((set) => ({
   isLoading: true, // 1. Empezamos en true para bloquear la navegación inicial
 
   login: async (token, refresh, userData) => {
-    await SecureStore.setItemAsync("userToken", token);
-    await SecureStore.setItemAsync("refreshToken", refresh);
+    await setStoreKey("userToken", token);
+    await setStoreKey("refreshToken", refresh);
     set({ token, refresh, user: userData, isLoading: false });
   },
 
   logout: async () => {
-    console.log("ENTRA AL LOGOUT");
-    await SecureStore.deleteItemAsync("userToken");
-    await SecureStore.deleteItemAsync("refreshToken");
+    await deleteStoreKey("userToken");
+    await deleteStoreKey("refreshToken");
     set({ token: null, refresh: null, user: null, isLoading: false });
   },
 
   initialize: async () => {
     try {
-      const token = await SecureStore.getItemAsync("userToken");
+      const token = await getStoreKey("userToken");
       // 2. Seteamos el token (si existe) y SIEMPRE apagamos isLoading
       set({ token, isLoading: false });
     } catch (error) {
@@ -32,3 +32,27 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 }));
+
+export const getStoreKey = async (key: string) => {
+  if (Platform.OS === 'web') {
+    return localStorage.getItem(key);
+  } else {
+    return await SecureStore.getItemAsync(key);
+  }
+}
+
+export const setStoreKey = async (key: string, value: any) => {
+  if (Platform.OS === 'web') {
+    localStorage.setItem(key, value);
+  } else {
+    SecureStore.setItemAsync(key, value);
+  }
+}
+
+export const deleteStoreKey = async (key: string) => {
+  if (Platform.OS === 'web') {
+    localStorage.removeItem(key);
+  } else {
+    await SecureStore.deleteItemAsync(key);
+  }
+}

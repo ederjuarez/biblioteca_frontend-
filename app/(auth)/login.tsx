@@ -4,21 +4,20 @@ import { useRouter } from "expo-router";
 import api from "@/api/axios";
 import { useAuthStore } from "@/store/useAuthStore";
 import { LoginResponse } from "@/types/auth";
-import { TextInput, Button as BtnPaper } from "react-native-paper";
+import { TextInput, Button as BtnPaper, Text } from "react-native-paper";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useAppTheme } from "@/types/theme";
 
 export default function Login() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
-  const { login, isLoading } = useAuthStore((state) => state);
+  const [loading, setLoading] = useState(false);
+  const login = useAuthStore((state) => state.login);
   const router = useRouter();
   const theme = useAppTheme();
-  const [loadind, setLoading] = useState(false);
 
   const handleLogin = async () => {
     setLoading(true);
-    // Aquí puedes agregar la lógica de autenticación, por ejemplo, hacer una solicitud a tu backend
     try {
       const { data } = await api.post<LoginResponse>("/token/", {
         username,
@@ -27,20 +26,21 @@ export default function Login() {
       console.log("Autenticación exitosa =>", data);
       const { access, refresh, user } = data;
       await login(access, refresh, user || { id: 1, username }, true);
-      setLoading(false);
-      // router.replace("/(main)/(tabs)/profile"); // Redirige a la página principal después del login
+      router.replace("/(main)/(tabs)/authors");
     } catch (error) {
-      setLoading(false);
       console.log(error);
       Alert.alert(
         "Error",
         "Credenciales incorrectas. Por favor, inténtalo de nuevo.",
       );
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <SafeAreaView style={styles.container}>
+      <Text variant="titleLarge" style={styles.title}>Iniciar Sesión</Text>
       <TextInput
         mode="outlined"
         label="Nombre de usuario"
@@ -56,13 +56,7 @@ export default function Login() {
         value={password}
         onChangeText={setPassword}
       />
-      <BtnPaper
-        mode="contained"
-        onPress={() => handleLogin()}
-        contentStyle={{ backgroundColor: theme.colors.secondary }}
-        labelStyle={{ color: theme.colors.textColor }}
-        loading={loadind}
-      >
+      <BtnPaper mode="contained" onPress={() => handleLogin()} loading={loading}>
         Iniciar Sesión
       </BtnPaper>
     </SafeAreaView>
@@ -75,5 +69,9 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     padding: 20,
     gap: 20,
+  },
+  title: {
+    color: "#000",
+    fontWeight: "bold",
   },
 });
