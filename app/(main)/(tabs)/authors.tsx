@@ -1,73 +1,103 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  StatusBar,
-  TouchableOpacity,
-} from "react-native";
+import { FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import api from "@/api/axios";
-import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { SafeAreaView } from "react-native-safe-area-context";
+import { FAB, List, Text } from "react-native-paper";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { theme } from "@/types/theme";
+import { useRouter } from "expo-router";
 
-interface Author {
+export interface Author {
   id: number;
   name: string;
+  biography: string;
 }
-
-type ItemProps = { name: string };
-
-const Item = ({ name }: ItemProps) => (
-  <View style={styles.item}>
-    <Text style={styles.title}>{name}</Text>
-    <TouchableOpacity style={{ marginLeft: "auto" }}>
-      <Text style={{ color: "white" }}>Ver Libros</Text>
-    </TouchableOpacity>
-  </View>
-);
 
 export default function Authors() {
   const [authors, setAuthors] = useState<Author[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [hasMore, setHasMore] = useState("");
+  const router = useRouter();
 
   useEffect(() => {
     try {
-      api.get("/authors/").then((response) => {
-        setAuthors(response.data);
+      api.get("/authors/", {
+        params: {
+          page: currentPage,
+        },
+      }).then((response) => {
+        setAuthors((prev) => [...prev, ...response.data.results]);
+        setHasMore(response.data.links.next);
       });
     } catch (error) {
       console.log("Error fetching authors =>", error);
     }
   }, []);
 
+  const handlePress = (id: number) => {
+    router.push(("/(main)/(tabs)/books/" + id) as any);
+  };
+
+  const Item = ({ name, biography, id }: Author) => (
+    <List.Item
+      title={name}
+      description={biography}
+      right={props => <TouchableOpacity onPress={() => handlePress(id)}><MaterialCommunityIcons name="bookshelf" {...props} size={40} color={theme.colors.primary} /></TouchableOpacity>}
+      style={styles.item}
+    />
+  );
+
   return (
-    <SafeAreaProvider>
-      <SafeAreaView style={styles.container}>
-        <Text>Lista de autores</Text>
-        <FlatList
-          data={authors}
-          keyExtractor={(item) => item.id.toString()}
-          renderItem={({ item }) => <Item name={item.name} />}
-        />
-      </SafeAreaView>
-    </SafeAreaProvider>
+    <SafeAreaView style={styles.container}>
+      <Text variant="titleLarge" style={styles.title}>Lista de autores</Text>
+      <FlatList
+        data={authors}
+        keyExtractor={(item) => item.id.toString()}
+        renderItem={({ item }) => <Item {...item} />}
+        onEndReached={() => hasMore && setCurrentPage((prev) => prev + 1)}
+        onEndReachedThreshold={0.5}
+        ListFooterComponent={
+          <Text variant="bodyMedium" style={styles.footerText}>
+            {hasMore ? "Cargando más..." : "No hay más autores"}
+          </Text>
+        }
+      />
+      <FAB
+        label="Agregar autor"
+        icon="plus"
+        style={styles.fab}
+        color="white"
+        onPress={() => console.log("Agregar autor")}
+      />
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: StatusBar.currentHeight || 0,
-  },
-  item: {
-    display: "flex",
-    flexDirection: "row",
-    backgroundColor: "#3eb3f2",
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    borderRadius: 8,
+    padding: 16,
   },
   title: {
-    fontSize: 32,
+    marginBottom: 16,
+    color: "#000",
+    fontWeight: "bold",
+  },
+  item: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc"
+  },
+  fab: {
+    position: "absolute",
+    backgroundColor: theme.colors.primary,
+    fontWeight: "bold",
+    margin: 16,
+    right: 0,
+    bottom: 0,
+  },
+  footerText: {
+    textAlign: "center",
+    marginTop: 16,
+    color: "#666",
   },
 });

@@ -1,56 +1,63 @@
 import React, { useEffect, useState } from "react";
-import {
-  View,
-  Text,
-  FlatList,
-  StyleSheet,
-  StatusBar,
-  TouchableOpacity,
-} from "react-native";
+import { StyleSheet, TouchableOpacity } from "react-native";
 import api from "@/api/axios";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { Link } from "expo-router";
+import { FAB, List, Text } from "react-native-paper";
+import { theme } from "@/types/theme";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { useLocalSearchParams } from "expo-router";
 
-interface Book {
+export interface Book {
   id: number;
   title: string;
+  author: string;
+  author_name: string;
+  isbn: string;
+  publication_date: string;
+  price: number;
+  available: boolean;
+  portada: string;
 }
-
-type ItemProps = { title: string };
-
-const Item = ({ title }: ItemProps) => (
-  <View style={styles.item}>
-    <Text style={styles.title}>{title}</Text>
-    <TouchableOpacity style={{ marginLeft: "auto" }}>
-      <Text style={{ color: "white" }}>Ver Libros</Text>
-    </TouchableOpacity>
-  </View>
-);
 
 export default function Books() {
   const [books, setBooks] = useState<Book[]>([]);
+  const params = useLocalSearchParams();
 
   useEffect(() => {
     try {
-      api.get("/books/").then((response) => {
+      params.id && api.get(`/books_author/${params.id}`).then((response) => {
         setBooks(response.data);
       });
     } catch (error) {
-      console.log("Error fetching authors =>", error);
+      console.log("Error fetching books =>", error);
     }
   }, []);
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Lista de autores</Text>
-      <FlatList
-        data={books}
-        keyExtractor={(item) => item.id.toString()}
-        renderItem={({ item }) => <Item title={item.title} />}
+      <Text variant="titleLarge" style={styles.title}>Lista de libros</Text>
+      {books.map((book) => (
+        <List.Item
+          key={book.id}
+          title={book.title}
+          description={() => (
+            <>
+              <Text>Autor: {book.author_name}</Text>
+              <Text>ISBN: {book.isbn}</Text>
+              <Text>Precio: ${book.price.toFixed(2)}</Text>
+            </>
+          )}
+          right={props => <MaterialCommunityIcons name="book" {...props} size={40} />}
+          style={styles.item}
+        />
+      ))}
+      <FAB
+        label="Agregar libro"
+        icon="plus"
+        style={styles.fab}
+        color="white"
+        onPress={() => console.log("Agregar libro")}
       />
-      <Link href="/add_book">
-        <Text style={{ color: "blue", marginTop: 20 }}>Agregar Libro</Text>
-      </Link>
     </SafeAreaView>
   );
 }
@@ -58,18 +65,23 @@ export default function Books() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: StatusBar.currentHeight || 0,
-  },
-  item: {
-    display: "flex",
-    flexDirection: "row",
-    backgroundColor: "#3eb3f2",
-    padding: 20,
-    marginVertical: 8,
-    marginHorizontal: 16,
-    borderRadius: 8,
+    padding: 16,
   },
   title: {
-    fontSize: 32,
+    marginBottom: 16,
+    color: "#000",
+    fontWeight: "bold",
+  },
+  item: {
+    borderBottomWidth: 1,
+    borderBottomColor: "#ccc"
+  },
+  fab: {
+    position: "absolute",
+    backgroundColor: theme.colors.primary,
+    fontWeight: "bold",
+    margin: 16,
+    right: 0,
+    bottom: 0,
   },
 });

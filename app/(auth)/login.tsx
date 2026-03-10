@@ -56,7 +56,7 @@ export default function Login() {
         value={password}
         onChangeText={setPassword}
       />
-      <BtnPaper mode="contained" onPress={() => handleLogin()} contentStyle={{ backgroundColor: theme.colors.secondary }} labelStyle={{ color: theme.colors.textColor }}>
+      <BtnPaper mode="contained" onPress={() => handleLogin()}>
         Iniciar Sesión
       </BtnPaper>
     </SafeAreaView>
