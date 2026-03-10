@@ -2,10 +2,10 @@ import React, { useEffect, useState } from "react";
 import { FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import api from "@/api/axios";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { FAB, Icon, List, Text } from "react-native-paper";
+import { Avatar, FAB, Icon, List, Text } from "react-native-paper";
 import { theme } from "@/types/theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 
 export interface Book {
   id: number;
@@ -24,9 +24,12 @@ export default function Books() {
   const { authorId } = useLocalSearchParams();
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   useEffect(() => {
     try {
+      setLoading(true);
       authorId &&
         api.get(`/books_author/${authorId}/`, {
           params: {
@@ -41,6 +44,8 @@ export default function Books() {
         });
     } catch (error) {
       console.log("Error fetching books =>", error);
+    } finally {
+      setLoading(false);
     }
   }, [authorId, currentPage]);
 
@@ -55,7 +60,7 @@ export default function Books() {
           <Text>Precio: ${book.price.toFixed(2)}</Text>
         </>
       )}
-      right={props => <Icon source="book-open-variant" {...props} size={40} color={theme.colors.secondary} />}
+      right={props => <Avatar.Image size={70} source={{ uri: book.portada }} style={styles.avatar} />}
       style={styles.item}
       titleStyle={styles.itemTitle}
     />
@@ -72,7 +77,7 @@ export default function Books() {
         renderItem={({ item }) => <Item {...item} />}
         ListFooterComponent={
           <Text variant="bodyMedium" style={styles.footerText}>
-            {books.length === 0 ? "No hay libros" : "Cargando más..."}
+            {loading ? "Cargando..." : (books.length === 0 && "No hay libros")}
           </Text>
         }
       />
@@ -82,7 +87,7 @@ export default function Books() {
         icon="plus"
         style={styles.fab}
         color="white"
-        onPress={() => console.log("Agregar libro")}
+        onPress={() => router.push("/(main)/add_book")}
       />
     </SafeAreaView>
   );
@@ -123,5 +128,10 @@ const styles = StyleSheet.create({
     textAlign: "center",
     marginTop: 20,
     marginBottom: 20,
+  },
+  avatar: {
+    backgroundColor: "#ccc",
+    borderWidth: 1,
+    borderColor: "#ccc",
   },
 });

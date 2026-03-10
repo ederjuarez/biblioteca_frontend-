@@ -6,31 +6,40 @@ import api from "@/api/axios";
 import { useRouter } from "expo-router";
 
 export default function AddBookPage() {
-  const [name, setName] = useState("");
-  const [birthDate, setBirthDate] = useState("");
-  const [biography, setBiography] = useState("");
+  const [title, setTitle] = useState("");
+  const [author, setAuthor] = useState("");
+  const [publicationDate, setPublicationDate] = useState("");
+  const [isbn, setIsbn] = useState("");
+  const [price, setPrice] = useState("");
+  const [image, setImage] = useState("");
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  const handleSaveAuthor = () => {
-    if (!name || !birthDate || !biography) {
+  const handleSaveBook = () => {
+    if (!title || !author || !publicationDate || !isbn || !price) {
       Alert.alert("Error", "Todos los campos son obligatorios");
       return;
     }
     setLoading(true);
     let data = {
-      name: name,
-      birth_date: birthDate,
-      biography: biography,
+      title: title,
+      author: author,
+      publication_date: publicationDate,
+      isbn: isbn,
+      price: price,
+      image: image,
     };
     try {
       api.post("/books/", data).then((response) => {
         console.log("guardado =>", response);
         setLoading(false);
-        setName("");
-        setBirthDate("");
-        setBiography("");
-        router.replace("/(main)/(tabs)/authors");
+        setTitle("");
+        setAuthor("");
+        setPublicationDate("");
+        setIsbn("");
+        setPrice("");
+        setImage("");
+        router.replace("/(main)/(tabs)/books");
       });
     } catch (error) {
       console.log("Error guardando =>", error);
@@ -41,33 +50,49 @@ export default function AddBookPage() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Add Author Page</Text>
       <TextInput
         mode="outlined"
-        label="Nombre"
-        value={name}
-        onChangeText={setName}
+        label="Titulo"
+        value={title}
+        onChangeText={setTitle}
       />
       <TextInput
         mode="outlined"
-        label="Fecha de nacimiento"
-        value={birthDate}
-        onChangeText={setBirthDate}
+        label="Isbn"
+        value={isbn}
+        onChangeText={setIsbn}
       />
       <TextInput
         mode="outlined"
-        label="Biografía"
-        value={biography}
-        onChangeText={setBiography}
-        multiline
-        numberOfLines={4}
+        label="Autor"
+        value={author}
+        onChangeText={setAuthor}
+      />
+      <TextInput
+        mode="outlined"
+        label="Fecha de publicacion"
+        value={publicationDate}
+        onChangeText={setPublicationDate}
+      />
+      <TextInput
+        mode="outlined"
+        label="Precio"
+        value={price}
+        onChangeText={setPrice}
+        keyboardType="numeric"
+      />
+      <TextInput
+        mode="outlined"
+        label="Imagen"
+        value={image}
+        onChangeText={setImage}
       />
       <Button
         mode="contained"
-        onPress={() => handleSaveAuthor()}
+        onPress={() => handleSaveBook()}
         loading={loading}
       >
-        Guardar Autor
+        Guardar Libro
       </Button>
     </SafeAreaView>
   );

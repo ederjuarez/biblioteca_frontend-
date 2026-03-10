@@ -41,7 +41,6 @@ export default function AddAuthor() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text>Add Author Page</Text>
       <TextInput
         mode="outlined"
         label="Nombre"

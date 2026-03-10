@@ -17,10 +17,12 @@ export default function Authors() {
   const [authors, setAuthors] = useState<Author[]>([]);
   const [currentPage, setCurrentPage] = useState(1);
   const [hasMore, setHasMore] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
     try {
+      setLoading(true);
       api.get("/authors/", {
         params: {
           page: currentPage,
@@ -34,6 +36,8 @@ export default function Authors() {
       });
     } catch (error) {
       console.log("Error fetching authors =>", error);
+    } finally {
+      setLoading(false);
     }
   }, [currentPage]);
 
@@ -68,7 +72,7 @@ export default function Authors() {
         onEndReachedThreshold={0.5}
         ListFooterComponent={
           <Text variant="bodyMedium" style={styles.footerText}>
-            {hasMore ? "Cargando más..." : "No hay más autores"}
+            {loading ? "Cargando..." : (authors.length === 0 && "No hay autores")}
           </Text>
         }
       />

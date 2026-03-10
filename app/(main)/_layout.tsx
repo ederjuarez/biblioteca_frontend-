@@ -7,8 +7,8 @@ export default function MainLayout() {
         name="(tabs)"
         options={{ headerShown: false, title: "Home" }}
       />
-      <Stack.Screen name="add_book" options={{ title: "Agregar Libro" }} />
       <Stack.Screen name="add_author" options={{ title: "Agregar Autor" }} />
+      <Stack.Screen name="add_book" options={{ title: "Agregar Libro" }} />
     </Stack>
   );
 }
