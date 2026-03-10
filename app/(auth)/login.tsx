@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { StyleSheet, Alert } from "react-native";
+import { StyleSheet, Alert, Platform } from "react-native";
 import { useRouter } from "expo-router";
 import api from "@/api/axios";
 import { useAuthStore } from "@/store/useAuthStore";
@@ -17,9 +17,9 @@ export default function Login() {
   const theme = useAppTheme();
 
   const handleLogin = async () => {
+    setLoading(true);
     // Aquí puedes agregar la lógica de autenticación, por ejemplo, hacer una solicitud a tu backend
     try {
-      setLoading(true);
       const { data } = await api.post<LoginResponse>("/token/", {
         username,
         password,
@@ -56,7 +56,7 @@ export default function Login() {
         value={password}
         onChangeText={setPassword}
       />
-      <BtnPaper mode="contained" onPress={() => handleLogin()}>
+      <BtnPaper mode="contained" onPress={() => handleLogin()} loading={loading}>
         Iniciar Sesión
       </BtnPaper>
     </SafeAreaView>

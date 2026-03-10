@@ -6,7 +6,7 @@ import {
 } from "expo-router";
 import { useAuthStore } from "@/store/useAuthStore";
 import { useEffect } from "react";
-import { View, ActivityIndicator } from "react-native";
+import { View, ActivityIndicator, Platform } from "react-native";
 import { PaperProvider } from "react-native-paper";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { theme } from '@/types/theme'
@@ -15,7 +15,7 @@ export default function RootLayout() {
   const token = useAuthStore((state) => state.token);
   const isLoading = useAuthStore((state) => state.isLoading);
   const initialize = useAuthStore((state) => state.initialize);
-
+  
   const router = useRouter();
   const segments = useSegments();
   const navigationState = useRootNavigationState();
@@ -25,8 +25,6 @@ export default function RootLayout() {
   }, []);
 
   useEffect(() => {
-    console.log("isLoading =>", isLoading);
-    console.log("token =>", token);
     // 1. Verificación Crítica: Si el router no está listo, no navegamos aún.
     if (!navigationState?.key || isLoading) return;
 
@@ -37,6 +35,7 @@ export default function RootLayout() {
       // Si no hay sesión, al login. Nota: la ruta coincide con tu carpeta
       router.replace("/login");
     } else if (token && inAuthGroup) {
+      
       // Si hay sesión y está en el login, a la raíz (index.tsx)
       router.replace("/(main)/(tabs)");
     }

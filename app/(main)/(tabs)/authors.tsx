@@ -78,7 +78,7 @@ export default function Authors() {
         icon="plus"
         style={styles.fab}
         color="white"
-        onPress={() => console.log("Agregar autor")}
+        onPress={() => router.push("/(main)/add_author")}
       />
     </SafeAreaView>
   );
