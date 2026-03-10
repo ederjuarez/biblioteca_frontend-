@@ -70,6 +70,11 @@ export default function Books() {
         data={books}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => <Item {...item} />}
+        ListFooterComponent={
+          <Text variant="bodyMedium" style={styles.footerText}>
+            {books.length === 0 ? "No hay libros" : "Cargando más..."}
+          </Text>
+        }
       />
 
       <FAB

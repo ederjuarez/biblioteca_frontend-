@@ -13,12 +13,11 @@ export default function AddAuthor() {
   const router = useRouter();
 
   const handleSaveAuthor = () => {
-    setLoading(true);
     if (!name || !birthDate || !biography) {
       Alert.alert("Error", "Todos los campos son obligatorios");
-      setLoading(false);
       return;
     }
+    setLoading(true);
     let data = {
       name: name,
       birth_date: birthDate,
@@ -35,6 +34,7 @@ export default function AddAuthor() {
       });
     } catch (error) {
       console.log("Error guardando autor =>", error);
+    } finally {
       setLoading(false);
     }
   };
@@ -76,9 +76,7 @@ export default function AddAuthor() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: StatusBar.currentHeight || 0,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
+    padding: 16,
     gap: 16,
   },
 });

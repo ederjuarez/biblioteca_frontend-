@@ -25,7 +25,6 @@ export default function Authors() {
         params: {
           page: currentPage,
         },
-
       }).then((response) => {
         response.data.results = response.data.results.filter(
           (author: Author) => !authors.some((a) => a.id === author.id)
