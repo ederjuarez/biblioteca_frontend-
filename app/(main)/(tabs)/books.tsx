@@ -21,17 +21,18 @@ export interface Book {
 
 export default function Books() {
   const [books, setBooks] = useState<Book[]>([]);
-  const params = useLocalSearchParams();
+  const { author_id } = useLocalSearchParams();
 
   useEffect(() => {
     try {
-      params.id && api.get(`/books_author/${params.id}`).then((response) => {
-        setBooks(response.data);
-      });
+      author_id &&
+        api.get(`/books_author/${author_id}/`).then((response) => {
+          setBooks(response.data);
+        });
     } catch (error) {
       console.log("Error fetching books =>", error);
     }
-  }, []);
+  }, [author_id]);
 
   return (
     <SafeAreaView style={styles.container}>
