@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import api from "@/api/axios";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -6,6 +6,8 @@ import { FAB, List, Text } from "react-native-paper";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { theme } from "@/types/theme";
 import { useRouter } from "expo-router";
+import axios from "axios";
+import { useFocusEffect } from "@react-navigation/native";
 
 export interface Author {
   id: number;
@@ -20,26 +22,34 @@ export default function Authors() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    try {
-      setLoading(true);
-      api.get("/authors/", {
-        params: {
-          page: currentPage,
-        },
-      }).then((response) => {
-        response.data.results = response.data.results.filter(
-          (author: Author) => !authors.some((a) => a.id === author.id)
-        );
-        setAuthors((prev) => [...prev, ...response.data.results]);
-        setHasMore(response.data.links.next);
-      });
-    } catch (error) {
-      console.log("Error fetching authors =>", error);
-    } finally {
-      setLoading(false);
-    }
-  }, [currentPage]);
+  useFocusEffect(
+    useCallback(() => {
+      const controller = new AbortController();
+      setAuthors([]);
+      try {
+        setLoading(true);
+        api.get("/authors/", {
+          params: {
+            page: currentPage,
+          },
+          signal: controller.signal,
+        }).then((response) => {
+          const filtered = response?.data?.results?.filter(
+            (author: Author) => !authors.some((a) => a.id === author.id)
+          );
+          setAuthors((prev) => [...prev, ...(filtered || [])]);
+          setHasMore(response?.data?.links?.next);
+        });
+      } catch (error: any) {
+        if (!axios.isCancel(error)) {
+          console.log("Error fetching authors =>", error.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+      return () => controller.abort();
+    }, [currentPage])
+  );
 
   const handlePress = (id: number) => {
     router.push({

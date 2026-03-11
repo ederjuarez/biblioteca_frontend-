@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { FlatList, StyleSheet, TouchableOpacity } from "react-native";
 import api from "@/api/axios";
 import { SafeAreaView } from "react-native-safe-area-context";
@@ -6,6 +6,8 @@ import { Avatar, FAB, Icon, List, Text } from "react-native-paper";
 import { theme } from "@/types/theme";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
+import { useFocusEffect } from "@react-navigation/native";
+import axios from "axios";
 
 export interface Book {
   id: number;
@@ -27,30 +29,36 @@ export default function Books() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchBooks();
-  }, []);
-
-  const fetchBooks = async () => {
-    try {
-      setLoading(true);
-      api.get(`/books/${authorId ? `?author_id=${authorId}` : ''}`, {
-        params: {
-          page: currentPage,
-        },
-      }).then((response) => {
-        const filtered = response?.data?.results?.filter(
-          (book: Book) => !books.some((b) => b.id === book.id)
-        );
-        setBooks((prev) => [...prev, ...filtered]);
-        setHasMore(response.data.links.next);
-      });
-    } catch (error) {
-      console.log("Error fetching books =>", error.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  useFocusEffect(
+    useCallback(() => {
+      const controller = new AbortController();
+      setBooks([]);
+      setCurrentPage(1);
+      try {
+        setLoading(true);
+        api.get(`/books/`, {
+          params: {
+            ...(authorId && { author_id: authorId }),
+            page: currentPage,
+          },
+          signal: controller.signal,
+        }).then((response) => {
+          const filtered = response?.data?.results?.filter(
+            (book: Book) => !books.some((b) => b.id === book.id)
+          );
+          setBooks((prev) => [...prev, ...(filtered || [])]);
+          setHasMore(response.data?.links?.next);
+        });
+      } catch (error: any) {
+        if (!axios.isCancel(error)) {
+          console.log("Error fetching books =>", error.message);
+        }
+      } finally {
+        setLoading(false);
+      }
+      return () => controller.abort();
+    }, [authorId, currentPage])
+  );
 
   const Item = (book: Book) => (
     <List.Item
@@ -74,7 +82,7 @@ export default function Books() {
 
       <FlatList
         style={styles.list}
-        onEndReached={() => setCurrentPage(currentPage + 1)}
+        onEndReached={() => hasMore && !loading && setCurrentPage(currentPage + 1)}
         onEndReachedThreshold={0.5}
         data={books}
         keyExtractor={(item) => item.id.toString()}
