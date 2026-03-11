@@ -40,7 +40,7 @@ export default function Login() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text variant="titleLarge" style={styles.title}>Iniciar Sesión</Text>
+      <Text variant="titleLarge" style={styles.title}>LOGIN</Text>
       <TextInput
         mode="outlined"
         label="Nombre de usuario"
@@ -57,7 +57,7 @@ export default function Login() {
         onChangeText={setPassword}
       />
       <BtnPaper mode="contained" onPress={() => handleLogin()} loading={loading}>
-        Iniciar Sesión
+        INICIAR SESIÓN
       </BtnPaper>
     </SafeAreaView>
   );

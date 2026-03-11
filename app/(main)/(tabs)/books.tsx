@@ -30,25 +30,23 @@ export default function Books() {
   useEffect(() => {
     try {
       setLoading(true);
-      authorId &&
-        api.get(`/books_author/${authorId}/`, {
-          params: {
-            page: currentPage,
-          },
-        }).then((response) => {
-          response.data = response.data.filter(
-            (book: Book) => !books.some((b) => b.id === book.id)
-          );
-          setBooks((prev) => [...prev, ...response.data]);
-          // setHasMore(response.data.links.next);
-        });
+      api.get(`/books${authorId ? `_author/${authorId}/` : '/'}`, {
+        params: {
+          page: currentPage,
+        },
+      }).then((response) => {
+        response.data = response.data.filter(
+          (book: Book) => !books.some((b) => b.id === book.id)
+        );
+        setBooks((prev) => [...prev, ...response.data]);
+        // setHasMore(response.data.links.next);
+      });
     } catch (error) {
       console.log("Error fetching books =>", error);
     } finally {
       setLoading(false);
     }
   }, [authorId, currentPage]);
-
 
   const Item = (book: Book) => (
     <List.Item
@@ -60,7 +58,7 @@ export default function Books() {
           <Text>Precio: ${book.price.toFixed(2)}</Text>
         </>
       )}
-      right={props => <Avatar.Image size={70} source={{ uri: book.portada }} style={styles.avatar} />}
+      left={props => <Avatar.Image size={70} source={{ uri: book.portada }} style={styles.avatar} />}
       style={styles.item}
       titleStyle={styles.itemTitle}
     />
@@ -130,6 +128,7 @@ const styles = StyleSheet.create({
     marginBottom: 20,
   },
   avatar: {
+    marginLeft: 16,
     backgroundColor: "#ccc",
     borderWidth: 1,
     borderColor: "#ccc",
