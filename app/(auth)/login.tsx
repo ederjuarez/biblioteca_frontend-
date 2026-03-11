@@ -23,15 +23,15 @@ export default function Login() {
         username,
         password,
       });
-      console.log("Autenticación exitosa =>", data);
+      console.log("Autenticación exitosa");
       const { access, refresh, user } = data;
       await login(access, refresh, user || { id: 1, username }, true);
       router.replace("/(main)/(tabs)/authors");
-    } catch (error) {
-      console.log(error);
+    } catch (error: any) {
+      console.log("Error login =>", error.message || error);
       Alert.alert(
         "Error",
-        "Credenciales incorrectas. Por favor, inténtalo de nuevo.",
+        error.message || "Credenciales incorrectas. Por favor, inténtalo de nuevo.",
       );
     } finally {
       setLoading(false);
@@ -40,7 +40,7 @@ export default function Login() {
 
   return (
     <SafeAreaView style={styles.container}>
-      <Text variant="titleLarge" style={styles.title}>LOGIN</Text>
+      <Text variant="titleLarge" style={styles.title}>INICIAR SESIÓN</Text>
       <TextInput
         mode="outlined"
         label="Nombre de usuario"
@@ -57,7 +57,7 @@ export default function Login() {
         onChangeText={setPassword}
       />
       <BtnPaper mode="contained" onPress={() => handleLogin()} loading={loading}>
-        INICIAR SESIÓN
+        CONTINUAR
       </BtnPaper>
     </SafeAreaView>
   );
@@ -66,12 +66,15 @@ export default function Login() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
+    marginTop: 100,
     padding: 20,
     gap: 20,
   },
   title: {
     color: "#000",
     fontWeight: "bold",
+    textAlign: "center",
+    letterSpacing: 2,
+    marginBottom: 20,
   },
 });

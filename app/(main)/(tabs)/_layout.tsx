@@ -1,16 +1,18 @@
 import { Tabs } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
+import { theme } from "@/types/theme";
 
 export default function AdministrationLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: "green",
+        tabBarActiveTintColor: theme.colors.primary,
       }}
     >
       <Tabs.Screen
         name="profile"
         options={{
+          // href: null, //<- oculta la pestaña del tab
           header: () => null,
           tabBarIcon: ({ focused, color, size }) => (
             <Ionicons name="person" size={size} color={color} />
