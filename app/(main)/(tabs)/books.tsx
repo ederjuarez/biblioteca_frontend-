@@ -28,18 +28,18 @@ export default function Books() {
   const router = useRouter();
 
   useEffect(() => {
+    console.log(authorId)
     try {
       setLoading(true);
-      authorId &&
-        api.get(`/books_author/${authorId}/`, {
+      api.get(`/books/${authorId !== undefined ? `?author_id=${authorId}`:''}`, {
           params: {
             page: currentPage,
           },
         }).then((response) => {
-          response.data = response.data.filter(
+          response.data.results = response?.data?.results?.filter(
             (book: Book) => !books.some((b) => b.id === book.id)
           );
-          setBooks((prev) => [...prev, ...response.data]);
+          setBooks((prev) => [...prev, ...response?.data?.results]);
           // setHasMore(response.data.links.next);
         });
     } catch (error) {
